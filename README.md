@@ -1,9 +1,7 @@
 # minireload
 
 Hot code reloading for python scripts with a main loop.
-
 Basically just a nicer front-end for superreload + exception handling.
-
 Requires only the python standard library and no external dependencies. 
 
 ## Basic usage

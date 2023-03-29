@@ -22,7 +22,7 @@ class Main:
 
     def handle_exc(self, exc):
         """
-        If a exception occured during execution or reload, minireload tries to
+        If an exception occured during execution or reload, minireload tries to
         call this function, allowing the user to define custom exception handling.
         """
 

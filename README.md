@@ -1,7 +1,10 @@
 # minireload
 
 Hot code reloading for python scripts with a main loop.
+
 Basically just a nicer front-end for superreload + exception handling.
+
+Requires only the python standard library and no external dependencies. 
 
 ## Basic usage
 
@@ -15,9 +18,9 @@ class Main:
         This function will be called in a while loop. Do your wörk here!
         """
 
-        wörk()
-        wörk()
-        wörk()
+        work()
+        work()
+        work()
 
     def handle_exc(self, exc):
         """

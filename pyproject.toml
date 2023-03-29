@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minireload"
+version = "0.0.1"
+authors = [
+  { name="Jona Ruof", email="jona.ruof@uni-ulm.de" },
+]
+description = "Hot code reloading for python scripts with a main loop"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/joruof/minireload"
+"Bug Tracker" = "https://github.com/joruof/minireload/issues"

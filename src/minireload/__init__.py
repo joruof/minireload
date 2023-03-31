@@ -9,7 +9,7 @@ import traceback
 from pydoc import locate
 
 
-def launch(cls, func_name):
+def launch(cls, func_name, exc_func_name=""):
 
     file_path = os.path.abspath(sys.modules[cls.__module__].__file__)
 
@@ -22,7 +22,7 @@ def launch(cls, func_name):
     if platform.system() == 'Windows':
         # execlpe has different semantics on Windows
         cls = locate(cls_name)
-        loop(cls, func_name)
+        loop(cls, func_name, exc_func_name)
     else:
         os.execlpe(sys.executable,
                "python3",
@@ -30,6 +30,7 @@ def launch(cls, func_name):
                "minireload.main",
                cls_name,
                func_name,
+               exc_func_name,
                *sys.argv[1:],
                os.environ)
 

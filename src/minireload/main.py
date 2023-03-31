@@ -31,6 +31,11 @@ def main():
             type=str,
             help="the name of the method to call")
 
+    parser.add_argument(
+            "exc_func_name",
+            type=str,
+            help="the name of the method to call")
+
     args, unknown = parser.parse_known_args()
 
     cls = locate(args.class_name)
@@ -39,7 +44,7 @@ def main():
         print(f"Could not find class {args.class_name}")
         return
 
-    loop(cls, args.func_name)
+    loop(cls, args.func_name, args.exc_func_name)
 
 
 if __name__ == "__main__":

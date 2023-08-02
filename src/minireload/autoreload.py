@@ -88,6 +88,8 @@ def scan_modules(requests, results):
 
         try:
             mtime_table, req = requests.get(timeout=2.0)
+        except KeyboardInterrupt:
+            return
         except queue.Empty:
             return
 
@@ -130,6 +132,10 @@ class ModuleReloader:
         self.old_objects = {}
 
         self.mtime_table = {}
+
+    def __del__(self):
+
+        self.scan_process.terminate()
 
     def init_subproc(self):
 

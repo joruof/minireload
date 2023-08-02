@@ -59,6 +59,8 @@ def loop(cls, func_name, exc_func_name=""):
             else:
                 # backoff time to reduce cpu usage
                 time.sleep(0.1)
+        except KeyboardInterrupt:
+            return
         except SystemExit:
             return
         except Exception as e:

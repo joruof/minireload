@@ -76,7 +76,6 @@ from importlib import reload
 
 import multiprocessing as mp
 
-
 # ------------------------------------------------------------------------------
 # Autoreload functionality
 # ------------------------------------------------------------------------------
@@ -85,39 +84,39 @@ import multiprocessing as mp
 def scan_modules(requests, results):
 
     while True:
-
         try:
-            mtime_table, req = requests.get(timeout=2.0)
+            try:
+                mtime_table, req = requests.get(timeout=2.0)
+            except queue.Empty:
+                return
+
+            needs_reload = []
+
+            for name, origin in req.items():
+
+                if name in [None, "__mp_main__", "__main__"]:
+                    # we cannot reload(__main__) or reload(__mp_main__)
+                    continue
+
+                if origin in [None, "built-in", "frozen"]:
+                    # builtins or frozen modules will likely not change
+                    continue
+
+                try:
+                    mtime = os.stat(origin).st_mtime
+                except OSError:
+                    continue
+
+                try:
+                    if mtime_table[name] < mtime:
+                        needs_reload.append(name)
+                        mtime_table[name] = mtime
+                except KeyError:
+                    mtime_table[name] = mtime
+
+            results.put((mtime_table, needs_reload))
         except KeyboardInterrupt:
             return
-        except queue.Empty:
-            return
-
-        needs_reload = []
-
-        for name, origin in req.items():
-
-            if name in [None, "__mp_main__", "__main__"]:
-                # we cannot reload(__main__) or reload(__mp_main__)
-                continue
-
-            if origin in [None, "built-in", "frozen"]:
-                # builtins or frozen modules will likely not change
-                continue
-
-            try:
-                mtime = os.stat(origin).st_mtime
-            except OSError:
-                continue
-
-            try:
-                if mtime_table[name] < mtime:
-                    needs_reload.append(name)
-                    mtime_table[name] = mtime
-            except KeyError:
-                mtime_table[name] = mtime
-
-        results.put((mtime_table, needs_reload))
 
 
 class ModuleReloader:
@@ -132,10 +131,6 @@ class ModuleReloader:
         self.old_objects = {}
 
         self.mtime_table = {}
-
-    def __del__(self):
-
-        self.scan_process.terminate()
 
     def init_subproc(self):
 

@@ -70,6 +70,7 @@ import gc
 import sys
 import types
 import queue
+import signal
 import weakref
 
 from importlib import reload
@@ -145,6 +146,13 @@ class ModuleReloader:
                 args=[self.scan_requests, self.scan_results])
 
         self.scan_process.start()
+
+    def cleanup(self):
+
+        if self.scan_process is not None:
+            # no patience, no mercy
+            os.kill(self.scan_process.pid, signal.SIGKILL)
+            self.scan_process = None
 
     def reload(self):
         """

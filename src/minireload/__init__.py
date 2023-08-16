@@ -3,8 +3,10 @@ from minireload.autoreload import ModuleReloader
 import os
 import sys
 import time
+import inspect
 import platform
 import traceback
+import datetime
 
 from pydoc import locate
 
@@ -35,6 +37,21 @@ def launch(cls, func_name, exc_func_name=""):
                os.environ)
 
 
+class ExceptionInfo:
+
+    def __init__(self, exc):
+
+        self.exc = exc
+        self.exc_str = traceback.format_exc()
+        self.exc_time = datetime.datetime.now()
+        (self.exc_type, self.exc_value, self.exc_tb) = sys.exc_info()
+
+        if isinstance(exc, SyntaxError):
+            self.exc_frames = []
+        else:
+            self.exc_frames = inspect.getinnerframes(self.exc_tb)
+
+
 def loop(cls, func_name, exc_func_name=""):
 
     obj = cls()
@@ -42,27 +59,30 @@ def loop(cls, func_name, exc_func_name=""):
     func = getattr(obj, func_name)
     exc_func = getattr(obj, exc_func_name, None)
 
-    exc = None
+    exc_info = None
 
     reloader = ModuleReloader()
 
-    while True:
-        try:
-            if reloader.reload():
-                exc = None
+    try:
+        while True:
+            try:
+                if reloader.reload():
+                    exc_info = None
 
-            if exc is None:
-                func()
-            elif exc_func is not None:
-                if exc_func(exc) == True:
-                    exc = None
-            else:
-                # backoff time to reduce cpu usage
-                time.sleep(0.1)
-        except KeyboardInterrupt:
-            return
-        except SystemExit:
-            return
-        except Exception as e:
-            traceback.print_exc()
-            exc = e
+                if exc_info is None:
+                    func()
+                elif exc_func is not None:
+                    if exc_func(exc_info):
+                        exc_info = None
+                else:
+                    # backoff time to reduce cpu usage
+                    time.sleep(0.1)
+            except KeyboardInterrupt:
+                break
+            except SystemExit:
+                break
+            except Exception as e:
+                traceback.print_exc()
+                exc_info = ExceptionInfo(e)
+    finally:
+        reloader.cleanup()

@@ -61,6 +61,6 @@ def main():
             print("Everything is awesome:", res)
 ```
 
-The update function is wrapped in a ```WrappingReloader```. This reloads all
-changed modules in the given paths and handles exceptions, which may happen
-during live code editing.
+The update function is wrapped in a ```WrappingReloader```. By default this
+reloads the toplevel module the function belongs to and handles exceptions,
+which may happen during live code editing.

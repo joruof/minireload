@@ -18,8 +18,7 @@ def get_toplevel_module_path(obj):
 
     module_name = obj.__module__.split(".")[0]
     module_origin = sys.modules[module_name].__spec__.origin
-    module_path = os.path.dirname(os.path.abspath(
-        os.path.realpath(module_origin)))
+    module_path = os.path.dirname(os.path.abspath(module_origin))
 
     return module_path
 
@@ -44,7 +43,7 @@ class ReloadEventHandler(FileSystemEventHandler):
         if event.is_directory:
             return
 
-        if event.event_type not in ["modified", "moved", "created", "deleted"]:
+        if event.event_type not in ["modified", "moved", "created"]:
             return
 
         with self.lock:

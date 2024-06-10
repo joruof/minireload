@@ -1,6 +1,4 @@
-import os
 import time
-import traceback
 
 import minireload as mr
 
@@ -18,7 +16,7 @@ def main():
     enable_autoreload = True
 
     if enable_autoreload:
-        func = mr.WrappingReloader(update, [(os.path.abspath("."), True)])
+        func = mr.WrappingReloader(update)
     else:
         func = update
 

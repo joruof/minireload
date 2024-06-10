@@ -29,8 +29,7 @@ if __name__ == "__main__":
 ```
 
 impl.py
-```
-import os
+```python
 import time
 
 import minireload as mr
@@ -41,15 +40,27 @@ def update():
     print("Try changing me!")
     time.sleep(0.1)
 
+    return 42
+
 
 def main():
 
-    update_func = mr.SafeReloader([(os.path.abspath("."), True)], update)
+    enable_autoreload = True
+
+    if enable_autoreload:
+        func = mr.WrappingReloader(update)
+    else:
+        func = update
 
     while True:
-        update_func()
+        res = func()
+
+        if type(res) == mr.ReloadErrorInfo:
+            print("Everything is awful:", res)
+        else:
+            print("Everything is awesome:", res)
 ```
 
-The update function is wrapped in a ```SafeReloader```. This reloads all
-changed modules in the given paths and handles exceptions, which may happend
+The update function is wrapped in a ```WrappingReloader```. This reloads all
+changed modules in the given paths and handles exceptions, which may happen
 during live code editing.

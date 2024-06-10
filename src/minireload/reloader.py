@@ -14,6 +14,16 @@ from watchdog.events import FileSystemEventHandler
 from minireload.autoreload import superreload
 
 
+def get_toplevel_module_path(obj):
+
+    module_name = obj.__module__.split(".")[0]
+    module_origin = sys.modules[module_name].__spec__.origin
+    module_path = os.path.dirname(os.path.abspath(
+        os.path.realpath(module_origin)))
+
+    return module_path
+
+
 class ReloadEventHandler(FileSystemEventHandler):
 
     def __init__(self):
@@ -107,11 +117,22 @@ class Reloader:
 
 
 class WrappingReloader(Reloader):
+    """
+    Wraps a given function and, if necessary, reloads it on every invocation.
+    By default, the entire toplevel module, to which func belongs, is reloaded.
+
+    Exceptions raised during the execution of the function will be caught.
+    In case of a caught exception a ReloadErrorInfo object will be returned
+    instead of the return value of the function.
+    """
 
     def __init__(self,
                  func,
-                 reload_paths: list[tuple[str, bool]],
+                 reload_paths: list[tuple[str, bool]] = None,
                  retry_after_secs=0.1):
+
+        if reload_paths is None:
+            reload_paths = [(get_toplevel_module_path(func), True)]
 
         super().__init__(reload_paths)
 
@@ -139,3 +160,28 @@ class WrappingReloader(Reloader):
             traceback.print_exc()
             self.exc_info = ReloadErrorInfo(e)
             return self.exc_info
+
+
+def launch(cls, func_name, exc_func_name=""):
+    """
+    Legacy launch function for compatiblity with older versions.
+
+    Instantiates cls, and executes func in a while loop with live reloading.
+    If an error was raised exc_func will be executed instead.
+
+    cls: class, can be initialized without any arguments
+    func_name: name of function of cls to be executed
+    exc_func_name: name of function of cls to be executed in case of error
+    """
+
+    obj = cls()
+
+    func = getattr(obj, func_name)
+    exc_func = getattr(obj, exc_func_name, None)
+
+    reloader = WrappingReloader(func)
+
+    while True:
+        res = reloader()
+        if exc_func_name is not None and type(res) == ReloadErrorInfo:
+            exc_func(res)

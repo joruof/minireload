@@ -1,8 +1,8 @@
 # minireload
 
-Hot code reloading for python scripts with a main loop.
+Small library for live code reloading of python scripts.
 Basically just a nicer front-end for superreload + exception handling.
-Requires only the python standard library and no external dependencies. 
+Requires only the watchdog library to check for filesystem changes.
 
 
 ## Setup
@@ -14,28 +14,53 @@ pip3 install minireload
 
 ## Usage
 
+As demonstrated by the code in ```example/```.
+
+main.py
 ```python
+
+from impl import main
+
+
+if __name__ == "__main__":
+    # Since the __main__ file cannot be reloaded by the python interpreter,
+    # it just refers to another module, which contains the actual code.
+    main()
+```
+
+impl.py
+```python
+import time
+
 import minireload as mr
 
-class Main:
 
-    def do_update(self):
-        """
-        This function will be called in a while loop. Do your wörk here!
-        """
+def update():
 
-        work()
-        work()
-        work()
+    print("Try changing me!")
+    time.sleep(0.1)
 
-    def handle_exc(self, exc):
-        """
-        If an exception occured during execution or reload, minireload tries to
-        call this function, allowing the user to define custom exception handling.
-        """
+    return 42
 
-        print('Help!')
 
-if __name__ == '__main__':
-    mr.launch(Main, 'do_update', exc_func_name='handle_exc')
+def main():
+
+    enable_autoreload = True
+
+    if enable_autoreload:
+        func = mr.WrappingReloader(update)
+    else:
+        func = update
+
+    while True:
+        res = func()
+
+        if type(res) == mr.ReloadErrorInfo:
+            print("Everything is awful:", res)
+        else:
+            print("Everything is awesome:", res)
 ```
+
+The update function is wrapped in a ```WrappingReloader```. By default this
+reloads the toplevel module the function belongs to and handles exceptions,
+which may happen during live code editing.

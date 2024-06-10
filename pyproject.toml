@@ -4,15 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "minireload"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Jona Ruof", email="jona.ruof@uni-ulm.de" },
 ]
-description = "Hot code reloading for python scripts with a main loop"
+description = "Small library for live code reloading"
 readme = "README.md"
 requires-python = ">=3.6"
 classifiers = [
     "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "watchdog >= 4.0.0"
 ]
 
 [project.urls]

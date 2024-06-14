@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "minireload"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
   { name="Jona Ruof", email="jona.ruof@uni-ulm.de" },
 ]

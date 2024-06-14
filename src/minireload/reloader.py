@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import time
 import inspect
@@ -17,7 +18,13 @@ from minireload.autoreload import superreload
 def get_toplevel_module_path(obj):
 
     module_name = obj.__module__.split(".")[0]
-    module_origin = sys.modules[module_name].__spec__.origin
+    module_spec = sys.modules[module_name].__spec__
+    if module_spec is None:
+        if module_name == "__main__":
+            raise RuntimeError('the __main__ module cannot be reloaded')
+        else:
+            raise RuntimeError(f'could not find __spec__ of module {module_name}')
+    module_origin = module_spec.origin
     module_path = os.path.dirname(os.path.abspath(module_origin))
 
     return module_path
@@ -111,6 +118,10 @@ class Reloader:
 
         for m in self.reloaded_modules:
             superreload(m, old_objects=self.old_objects)
+
+        # important: do a garbage collection run after every reload
+        # clears out old objects and reduces subsequent reload runtimes
+        gc.collect()
 
         return True
 

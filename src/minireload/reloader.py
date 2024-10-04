@@ -84,7 +84,7 @@ class Reloader:
             if not os.path.isabs(path):
                 raise ValueError(f'reload path "{path}" must be an absolute path')
             observer = Observer()
-            observer.schedule(self.event_handler, path, recursive)
+            observer.schedule(self.event_handler, path, recursive=True)
             observer.start()
 
         self.reloaded_modules = []
